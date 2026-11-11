@@ -41,22 +41,35 @@ jobs:
 
       - name: Install prerequisites
         run: |
-          sudo apt-get install ca-certificates -y
-          sudo apt-get update -y
-          sudo apt-get install -y \
-            clang \
-            cmake \
-            curl \
-            gcc \
-            git \
-            g++ \
-            libclang-dev \
-            libgtk-3-dev \
-            llvm-dev \
-            nasm \
-            ninja-build \
-            pkg-config \
-            wget
+          install_pkgs() {
+            sudo apt-get install ca-certificates -y && \
+            sudo apt-get update -y && \
+            sudo apt-get install -y \
+              clang \
+              cmake \
+              curl \
+              gcc \
+              git \
+              g++ \
+              libclang-dev \
+              libgtk-3-dev \
+              llvm-dev \
+              nasm \
+              ninja-build \
+              pkg-config \
+              wget
+          }
+          n=0
+          until [ "$n" -ge 5 ]; do
+            install_pkgs && break
+            n=$((n+1))
+            echo "apt falhou (tentativa $n de 5) - provavel DNS/mirror instavel. Aguardando 20s..."
+            sleep 20
+          done
+          # Se as 5 tentativas falharem, roda uma ultima vez SEM '&& break' para o job falhar com erro real:
+          if [ "$n" -ge 5 ]; then
+            install_pkgs
+          fi
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
