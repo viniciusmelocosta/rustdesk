@@ -2730,7 +2730,8 @@ pub fn get_builtin_option(key: &str) -> String {
 
 #[inline]
 pub fn is_custom_client() -> bool {
-    get_app_name() != "RustDesk"
+    // Labsa build keeps the stock "RustDesk" name but must still use its own icon and skip stock updates.
+    true
 }
 
 pub fn verify_login(_raw: &str, _id: &str) -> bool {
