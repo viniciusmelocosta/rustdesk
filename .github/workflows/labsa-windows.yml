@@ -1,4 +1,4 @@
-name: Labsa - Build Windows
+name: Labsa - Build Windows e macOS
 
 on:
   workflow_dispatch:
