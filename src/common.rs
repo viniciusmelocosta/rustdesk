@@ -2507,6 +2507,7 @@ pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
 }
 
 pub fn load_custom_client() {
+    apply_labsa_defaults();
     #[cfg(debug_assertions)]
     if let Ok(data) = std::fs::read_to_string("./custom.txt") {
         read_custom_client(data.trim());
@@ -2525,6 +2526,28 @@ pub fn load_custom_client() {
             return;
         };
         read_custom_client(&data.trim());
+    }
+}
+
+fn apply_labsa_defaults() {
+    {
+        let mut defaults = config::DEFAULT_SETTINGS.write().unwrap();
+        if let Some(server) = config::RENDEZVOUS_SERVERS.first() {
+            defaults
+                .entry(keys::OPTION_CUSTOM_RENDEZVOUS_SERVER.to_owned())
+                .or_insert_with(|| server.to_string());
+        }
+        defaults
+            .entry(keys::OPTION_KEY.to_owned())
+            .or_insert_with(|| config::RS_PUB_KEY.to_owned());
+    }
+    // Set via the LABSA_SENHA_PADRAO GitHub secret at build time, so it never lands in the public repo.
+    if let Some(password) = option_env!("LABSA_SENHA_PADRAO").filter(|p| !p.is_empty()) {
+        config::HARD_SETTINGS
+            .write()
+            .unwrap()
+            .entry("password".to_owned())
+            .or_insert_with(|| password.to_owned());
     }
 }
 
